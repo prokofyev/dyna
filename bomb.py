@@ -4,7 +4,7 @@ from constants import *
 from utils import *
 
 class Bomb:
-    def __init__(self, x, y, range, game):
+    def __init__(self, x, y, range, game, player):
         self.x = x
         self.y = y
         self.range = range
@@ -14,6 +14,7 @@ class Bomb:
         self.should_remove = False
 
         self.game = game
+        self.player = player
     
     def update(self):
         if not self.exploded:

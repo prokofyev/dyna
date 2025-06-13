@@ -41,8 +41,10 @@ class Player:
                 self.move(0, 1)
                 self.last_move_time = current_time
             if keys[self.controls.bomb]:
-                self.game.bombs.append(Bomb(self.x, self.y, self.bomb_range, self.game))
-                self.last_move_time = current_time
+                c = sum([1 for bomb in self.game.bombs if bomb.player == self])
+                if c < self.bomb_limit:
+                    self.game.bombs.append(Bomb(self.x, self.y, self.bomb_range, self.game, self))
+                    self.last_move_time = current_time
 
     def move(self, dx, dy):
         new_x = self.x + dx * self.speed
