@@ -27,23 +27,33 @@ class Bomb:
 
     def explode(self):
         self.exploded = True
-        self.timer = 1 * FPS
 
         grid_x, grid_y = get_grid_pos(self.x, self.y)
-        for i in range(-self.range, self.range + 1):
-            if 0 <= grid_y + i < GRID_HEIGHT:
-                if self.game.map.game_map[grid_y + i][grid_x] == 2:
-                    self.game.map.game_map[grid_y + i][grid_x] = 0
-            if 0 <= grid_x + i < GRID_WIDTH:
-                if self.game.map.game_map[grid_y][grid_x + i] == 2:
-                    self.game.map.game_map[grid_y][grid_x + i] = 0
-        # Уничтожение блоков и нанесение урона игрокам/врагам
-        # (нужно добавить логику взрыва)
+
+        for dw in self.game.map.destructables:
+            dw_grid_x, dw_grid_y = get_grid_pos(dw.x, dw.y)
+            if dw_grid_x == grid_x and abs(dw_grid_y - grid_y) <= self.range or \
+                dw_grid_y == grid_y and abs(dw_grid_x - grid_x) <= self.range:
+                dw.destruct()
+
+        for bomb in self.game.bombs:
+            dw_grid_x, dw_grid_y = get_grid_pos(bomb.x, bomb.y)
+            if dw_grid_x == grid_x and abs(dw_grid_y - grid_y) <= self.range or \
+                dw_grid_y == grid_y and abs(dw_grid_x - grid_x) <= self.range:
+                if not bomb.exploded:
+                    bomb.explode()
+
+        for player in self.game.players:
+            dw_grid_x, dw_grid_y = get_grid_pos(player.x, player.y)
+            if dw_grid_x == grid_x and abs(dw_grid_y - grid_y) <= self.range or \
+                dw_grid_y == grid_y and abs(dw_grid_x - grid_x) <= self.range:
+                if not player.dead:
+                    player.dye()
     
     def draw(self, screen):
         if self.exploded:
             screen.blit(self.game.texture_manager.textures["explosion"], 
-                                (self.x, self.y))
+                                (self.x + MARGIN_SIZE, self.y + TOP_MARGIN_SIZE))
         else:
             screen.blit(self.game.texture_manager.textures["bomb"], 
-                                (self.x, self.y))
+                                (self.x + MARGIN_SIZE, self.y + TOP_MARGIN_SIZE))

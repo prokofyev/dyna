@@ -1,12 +1,15 @@
 import pygame
 import os
+import random
 
 from constants import *
+from utils import *
 
 class TextureManager:
     def __init__(self):
         self.textures = {}
         self.load_all_textures("images")
+        self.used_colors = []
         
     def load_all_textures(self, folder_path):
         """Автоматически загружает все изображения из указанной папки"""
@@ -31,3 +34,17 @@ class TextureManager:
             print(f"Не удалось загрузить текстуру {path}: {e}")
             return False
 
+    def get_colored_texture(self, name, threshold):
+        base_texture = self.textures[name]
+
+        f = True
+        while f:
+            color = random.randint(50, 255), random.randint(50, 255), random.randint(50, 255)
+            f = False
+            for c in self.used_colors:
+                if all(abs(c[i] - color[i]) < threshold for i in range(3)):
+                    f = True
+
+        self.used_colors.append(color)
+        colored_texture = change_color(base_texture, (168, 195, 178), color, 30)
+        return colored_texture, color
