@@ -55,29 +55,25 @@ class Player:
         new_x = self.x + dx * GRID_SIZE
         new_y = self.y + dy * GRID_SIZE
         
-        # Проверка на выход за границы и столкновение с блоками
-        if 0 <= new_x < SCREEN_WIDTH and 0 <= new_y < SCREEN_HEIGHT:
-            grid_x, grid_y = get_grid_pos(new_x, new_y)
+        grid_x, grid_y = get_grid_pos(new_x, new_y)
 
-            can_move = True
-
-            for bomb in self.game.bombs:
-                if get_grid_pos(bomb.x, bomb.y) == (grid_x, grid_y):
-                    can_move = False
-
-            for dw in self.game.map.destructables:
-                if get_grid_pos(dw.x, dw.y) == (grid_x, grid_y):
-                    can_move = False
-
-            if self.game.map.game_map[grid_y][grid_x] == 1:
-                can_move = False
-
-            if can_move:
-                self.target_x, self.target_y = new_x, new_y
-                self.is_moving = True
-                return True
-
+        if not (0 <= grid_x < GRID_WIDTH and 0 <= grid_y < GRID_HEIGHT):
             return False
+
+        for bomb in self.game.bombs:
+            if get_grid_pos(bomb.x, bomb.y) == (grid_x, grid_y):
+                return False
+
+        for dw in self.game.map.destructables:
+            if get_grid_pos(dw.x, dw.y) == (grid_x, grid_y):
+                return False
+
+        if self.game.map.game_map[grid_y][grid_x] == 1:
+            return False
+
+        self.target_x, self.target_y = new_x, new_y
+        self.is_moving = True
+        return True
 
     def update(self):
         if self.is_moving:
