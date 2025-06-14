@@ -7,13 +7,16 @@ from utils import *
 
 class Player:
     def __init__(self, controls, game):
-        self.speed = GRID_SIZE
         self.bomb_limit = 1
         self.bomb_range = 1
         self.dead = False
         self.score = 0
         self.x = 0
         self.y = 0
+        self.target_x = 0  
+        self.target_y = 0
+        self.speed = 3
+        self.is_moving = False
 
         self.controls = controls
         self.game = game
@@ -23,52 +26,73 @@ class Player:
         self.last_move_time = 0
     
     def control(self, keys):
-        if not self.dead:
+        if not self.dead and not self.is_moving:
             current_time = pygame.time.get_ticks()
             if current_time - self.last_move_time < self.move_cooldown:
                 return
 
+            moved = False
+
             if keys[self.controls.left]:
-                self.move(-1, 0)
-                self.last_move_time = current_time
+                moved = self.start_move(-1, 0)
             if keys[self.controls.right]:
-                self.move(1, 0)
-                self.last_move_time = current_time
+                moved = self.start_move(1, 0)
             if keys[self.controls.up]:
-                self.move(0, -1)
-                self.last_move_time = current_time
+                moved = self.start_move(0, -1)
             if keys[self.controls.down]:
-                self.move(0, 1)
+                moved = self.start_move(0, 1)
+
+            if moved:
                 self.last_move_time = current_time
+
             if keys[self.controls.bomb]:
                 c = sum([1 for bomb in self.game.bombs if bomb.player == self])
                 if c < self.bomb_limit:
                     self.game.bombs.append(Bomb(self.x, self.y, self.bomb_range, self.game, self))
                     self.last_move_time = current_time
 
-    def move(self, dx, dy):
-        new_x = self.x + dx * self.speed
-        new_y = self.y + dy * self.speed
+    def start_move(self, dx, dy):
+        new_x = self.x + dx * GRID_SIZE
+        new_y = self.y + dy * GRID_SIZE
         
         # Проверка на выход за границы и столкновение с блоками
         if 0 <= new_x < SCREEN_WIDTH and 0 <= new_y < SCREEN_HEIGHT:
             grid_x, grid_y = get_grid_pos(new_x, new_y)
 
-            f = True
+            can_move = True
+
             for bomb in self.game.bombs:
                 if get_grid_pos(bomb.x, bomb.y) == (grid_x, grid_y):
-                    f = False
+                    can_move = False
 
             for dw in self.game.map.destructables:
                 if get_grid_pos(dw.x, dw.y) == (grid_x, grid_y):
-                    f = False
+                    can_move = False
 
             if self.game.map.game_map[grid_y][grid_x] == 1:
-                f = False
+                can_move = False
 
-            if f:
-                self.x, self.y = new_x, new_y
+            if can_move:
+                self.target_x, self.target_y = new_x, new_y
+                self.is_moving = True
+                return True
 
+            return False
+
+    def update(self):
+        if self.is_moving:
+            # Плавное перемещение к целевой позиции
+            dx = self.target_x - self.x
+            dy = self.target_y - self.y
+            distance = max(abs(dx), abs(dy))
+            
+            if distance < self.speed:
+                self.x = self.target_x
+                self.y = self.target_y
+                self.is_moving = False
+            else:
+                self.x += dx * self.speed / distance
+                self.y += dy * self.speed / distance
     
     def draw(self, screen):
         if self.dead:
@@ -80,6 +104,7 @@ class Player:
 
     def dye(self):
         self.dead = True
+        self.is_moving = False
         self.other_player().score += 1
         self.game.game_over()
 
@@ -101,3 +126,5 @@ class Player:
     
         self.x = x * GRID_SIZE
         self.y = y * GRID_SIZE
+        self.target_x = self.x
+        self.target_y = self.y

@@ -45,7 +45,7 @@ class Bomb:
                     bomb.explode()
 
         for player in self.game.players:
-            dw_grid_x, dw_grid_y = get_grid_pos(player.x, player.y)
+            dw_grid_x, dw_grid_y = get_grid_pos(player.target_x, player.target_y)
             if dw_grid_x == grid_x and abs(dw_grid_y - grid_y) <= self.range or \
                 dw_grid_y == grid_y and abs(dw_grid_x - grid_x) <= self.range:
                 if not player.dead:

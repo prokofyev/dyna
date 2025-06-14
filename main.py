@@ -68,6 +68,9 @@ class Game:
         
         self.map.update()
 
+        for player in self.players:
+            player.update()
+
         for bomb in self.bombs:
             bomb.update()
 
