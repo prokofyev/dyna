@@ -8,19 +8,19 @@ from utils import *
 class Player:
     def __init__(self, controls, game):
         self.bomb_limit = 1
-        self.bomb_range = 1
+        self.bomb_range = 2
         self.dead = False
         self.score = 0
         self.x = 0
         self.y = 0
         self.target_x = 0  
         self.target_y = 0
-        self.speed = 3
+        self.speed = PLAYER_SPEED
         self.is_moving = False
 
         self.controls = controls
         self.game = game
-        self.texture, self.color = self.game.texture_manager.get_colored_texture("player", 160)
+        self.texture, self.color = self.game.texture_manager.get_colored_texture("player", 120)
 
         self.move_cooldown = 200  # 200 мс (0.2 сек) между шагами
         self.last_move_time = 0

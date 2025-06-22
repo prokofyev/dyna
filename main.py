@@ -39,17 +39,17 @@ class Game:
         self.game_over_timer = GAME_OVER_MESSAGE_DURATION
 
     def draw_score(self):
-        font = pygame.font.SysFont(None, 36)
+        font = pygame.font.SysFont(None, FONT_SIZE)
         score_text = font.render(f"{self.players[0].score} - {self.players[1].score}", True, WHITE)
-        score_pos = (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 10)
+        score_pos = (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 25)
         
         # Миниатюры игроков
-        player1_icon = pygame.transform.scale(self.players[0].texture, (30, 30))
-        player2_icon = pygame.transform.scale(self.players[1].texture, (30, 30))
+        player1_icon = pygame.transform.scale(self.players[0].texture, (SMALL_PLAYER_SIZE, SMALL_PLAYER_SIZE))
+        player2_icon = pygame.transform.scale(self.players[1].texture, (SMALL_PLAYER_SIZE, SMALL_PLAYER_SIZE))
         
         # Позиции иконок
-        self.screen.blit(player1_icon, (score_pos[0] - 40, 10))
-        self.screen.blit(player2_icon, (score_pos[0] + score_text.get_width() + 10, 10))
+        self.screen.blit(player1_icon, (score_pos[0] - SMALL_PLAYER_SIZE - 10, 20))
+        self.screen.blit(player2_icon, (score_pos[0] + score_text.get_width() + 10, 20))
         
         # Текст счёта
         self.screen.blit(score_text, score_pos)
