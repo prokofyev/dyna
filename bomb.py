@@ -51,7 +51,8 @@ class Bomb:
                         for dw in self.game.map.destructables:
                             dw_grid_x, dw_grid_y = get_grid_pos(dw.x, dw.y)
                             if dw_grid_x == check_x and dw_grid_y == check_y:
-                                should_stop = True
+                                if not dw.show_boost:
+                                    should_stop = True
                                 dw.destruct()
 
                         if can_explode:
@@ -92,7 +93,8 @@ class Bomb:
                         for dw in self.game.map.destructables:
                             dw_grid_x, dw_grid_y = get_grid_pos(dw.x, dw.y)
                             if dw_grid_x == check_x and dw_grid_y == check_y:
-                                should_stop = True
+                                if not dw.show_boost:
+                                    should_stop = True
 
                         if can_explode:
                             explosion_x = check_x * GRID_SIZE

@@ -28,6 +28,28 @@ class Map:
 
         self.destructables = []
 
+        boosts = {
+            BoostKind.BOMB: 4,
+            BoostKind.RANGE: 2,
+            BoostKind.SPEED: 2
+        }
+
+        for boost_kind in boosts:
+            boosts_count = boosts[boost_kind]
+            while boosts_count > 0:
+                r = random.randint(0, len(self.game_map) - 1)
+                c = random.randint(0, len(self.game_map[0]) - 1)
+
+                f = True
+
+                for dw in self.destructables:
+                    if get_grid_pos(dw.x, dw.y) == (c, r):
+                        f = False
+
+                if self.game_map[r][c] == 0 and f:
+                    self.destructables.append(DestructableWall(c * GRID_SIZE, r * GRID_SIZE, self.game, boost_kind))
+                    boosts_count -= 1
+
         destructables_count = random.randint(10, 20)
         while destructables_count > 0:
             r = random.randint(0, len(self.game_map) - 1)

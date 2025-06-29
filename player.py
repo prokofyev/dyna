@@ -7,24 +7,29 @@ from utils import *
 
 class Player:
     def __init__(self, controls, game):
-        self.bomb_limit = 1
-        self.bomb_range = 2
-        self.dead = False
         self.score = 0
         self.x = 0
         self.y = 0
         self.target_x = 0  
         self.target_y = 0
-        self.speed = PLAYER_SPEED
         self.is_moving = False
+        self.speed = PLAYER_SPEED
 
         self.controls = controls
         self.game = game
         self.texture, self.color = self.game.texture_manager.get_colored_texture("player", 120)
 
-        self.move_cooldown = 200  # 200 мс (0.2 сек) между шагами
+        self.move_cooldown = PLAYER_MOVE_COOLDOWN
         self.last_move_time = 0
-    
+
+        self.reset()
+
+    def reset(self):
+        self.bomb_limit = 1
+        self.bomb_range = 2
+        self.dead = False
+        self.move_cooldown = PLAYER_MOVE_COOLDOWN
+
     def control(self, keys):
         if not self.dead and not self.is_moving:
             current_time = pygame.time.get_ticks()
@@ -66,7 +71,8 @@ class Player:
 
         for dw in self.game.map.destructables:
             if get_grid_pos(dw.x, dw.y) == (grid_x, grid_y):
-                return False
+                if not dw.show_boost:
+                    return False
 
         if self.game.map.game_map[grid_y][grid_x] == 1:
             return False
@@ -86,6 +92,19 @@ class Player:
                 self.x = self.target_x
                 self.y = self.target_y
                 self.is_moving = False
+
+                grid_x, grid_y = get_grid_pos(self.x, self.y)
+                for dw in self.game.map.destructables:
+                    if get_grid_pos(dw.x, dw.y) == (grid_x, grid_y):
+                        if dw.show_boost:
+                            if dw.kind == BoostKind.BOMB:
+                                self.bomb_limit += 1
+                            elif dw.kind == BoostKind.RANGE:
+                                self.bomb_range += 1
+                            elif dw.kind == BoostKind.SPEED:
+                                self.move_cooldown /= 2
+
+                            dw.should_remove = True
             else:
                 self.x += dx * self.speed / distance
                 self.y += dy * self.speed / distance

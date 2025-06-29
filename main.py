@@ -33,7 +33,7 @@ class Game:
         self.map = Map(self)
         self.bombs = []
         for player in self.players:
-            player.dead = False
+            player.reset()
             player.teleport()
         self.state = GameState.PLAYING   
         self.game_over_timer = GAME_OVER_MESSAGE_DURATION
