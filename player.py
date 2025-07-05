@@ -51,8 +51,13 @@ class Player:
                 self.last_move_time = current_time
 
             if keys[self.controls.bomb]:
+                f = True
+                for b in self.game.bombs:
+                    if b.x == self.x and b.y == self.y:
+                        f = False
+
                 c = sum([1 for bomb in self.game.bombs if bomb.player == self])
-                if c < self.bomb_limit:
+                if c < self.bomb_limit and f:
                     self.game.bombs.append(Bomb(self.x, self.y, self.bomb_range, self.game, self))
                     self.last_move_time = current_time
 
