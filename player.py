@@ -107,7 +107,7 @@ class Player:
                             elif dw.kind == BoostKind.RANGE:
                                 self.bomb_range += 1
                             elif dw.kind == BoostKind.SPEED:
-                                self.move_cooldown /= 2
+                                self.move_cooldown -= 30
 
                             dw.should_remove = True
             else:
