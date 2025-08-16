@@ -14,7 +14,7 @@ class Game:
         pygame.init()
 
         # Настройки окна
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         pygame.display.set_caption("Dyna Blaster")
 
         self.texture_manager = TextureManager()

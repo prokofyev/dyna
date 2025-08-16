@@ -1,6 +1,6 @@
 from enum import Enum
 
-GRID_SIZE = 50
+GRID_SIZE = 75
 GRID_WIDTH = 15
 GRID_HEIGHT = 11
 
