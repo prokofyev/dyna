@@ -28,6 +28,7 @@ class Game:
                 self
             )]
         self.reset()
+        self.esc_pressed = False
 
     def reset(self):
         self.map = Map(self)
@@ -37,6 +38,7 @@ class Game:
             player.teleport()
         self.state = GameState.PLAYING   
         self.game_over_timer = GAME_OVER_MESSAGE_DURATION
+        self.esc_pressed = False
 
     def draw_score(self):
         font = pygame.font.SysFont(None, FONT_SIZE)
@@ -60,21 +62,38 @@ class Game:
         overlay.fill((0, 0, 0, 180))
         self.screen.blit(overlay, (0, 0))
 
+    def draw_pause_screen(self):
+        """Рисует экран паузы"""
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        self.screen.blit(overlay, (0, 0))
+        
+        font = pygame.font.SysFont(None, FONT_SIZE)
+        line1 = font.render("Нажмите ПРОБЕЛ, чтобы завершить игру,", True, WHITE)
+        line2 = font.render("или ESC, чтобы продолжить", True, WHITE)
+        
+        line1_pos = (SCREEN_WIDTH // 2 - line1.get_width() // 2, SCREEN_HEIGHT // 2 - 25)
+        line2_pos = (SCREEN_WIDTH // 2 - line2.get_width() // 2, SCREEN_HEIGHT // 2 + 25)
+        
+        self.screen.blit(line1, line1_pos)
+        self.screen.blit(line2, line2_pos)
+
     def update(self):
         if self.state == GameState.GAME_OVER:
             self.game_over_timer -= 1
             if self.game_over_timer <= 0:
                 self.reset()
         
-        self.map.update()
+        if self.state == GameState.PLAYING:
+            self.map.update()
 
-        for player in self.players:
-            player.update()
+            for player in self.players:
+                player.update()
 
-        for bomb in self.bombs:
-            bomb.update()
+            for bomb in self.bombs:
+                bomb.update()
 
-        self.bombs = [bomb for bomb in self.bombs if not bomb.should_remove] 
+            self.bombs = [bomb for bomb in self.bombs if not bomb.should_remove] 
 
     def game_over(self):
         self.state = GameState.GAME_OVER    
@@ -90,7 +109,9 @@ class Game:
         self.draw_score()
 
         if self.state == GameState.GAME_OVER:
-            self.draw_game_over_screen() 
+            self.draw_game_over_screen()
+        elif self.state == GameState.PAUSED:
+            self.draw_pause_screen() 
 
     def run(self):
         # Игровой цикл
@@ -101,10 +122,19 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        if self.state == GameState.PLAYING:
+                            self.state = GameState.PAUSED
+                        elif self.state == GameState.PAUSED:
+                            self.state = GameState.PLAYING
+                    elif event.key == pygame.K_SPACE and self.state == GameState.PAUSED:
+                        running = False
 
             keys = pygame.key.get_pressed()
-            for player in self.players:
-                player.control(keys) 
+            if self.state == GameState.PLAYING:
+                for player in self.players:
+                    player.control(keys) 
 
             self.update()
             self.draw()
